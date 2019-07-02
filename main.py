@@ -45,22 +45,16 @@ def processSCMagazine():
         date = parser.parse(new['published'])
         addDatabaseNews("SCMagazine",new['title'], new['link'],date.isoformat())
 
+def processFeedburnerFeeds():
+    processFeedburnerFeed("SecurityWeek")
+    processFeedburnerFeed("TheHackersNews")
 
-def processSecurityWeek():
-    url = "https://feeds.feedburner.com/securityweek"
+def processFeedburnerFeed(feed):
+    url = "https://feeds.feedburner.com/"+feed
     d = feedparser.parse(url)
     for new in d['entries']:
         date = parser.parse(new['published'])
-        addDatabaseNews("SecurityWeek",new['title'], new['links'][0]['href'],date.isoformat())
-
-
-def processTheHackerNews():
-    url = "https://feeds.feedburner.com/TheHackersNews"
-    d = feedparser.parse(url)
-    for new in d['entries']:
-        date = parser.parse(new['published'])
-        addDatabaseNews("TheHackerNews",new['title'], new['links'][0]['href'],date.isoformat())
-
+        addDatabaseNews(feed,new['title'], new['links'][0]['href'],date.isoformat())
 
 def processSecurityNow():
     url = "http://feeds.twit.tv/sn.xml"
@@ -112,7 +106,6 @@ def processStormDailyPodcast():
 
     parsedFeed = feedparser.parse(url)
     podcasts = parsedFeed['entries'][0:6]
-
     mp3 = podcasts[0]['id']
 
     table = """      <audio controls="controls">"""
@@ -255,7 +248,6 @@ def generatePodcastsPanels():
     podcastsPanelsHTML += htmlHeadPodcastsStormDailyPodcast
     podcastsPanelsHTML += processStormDailyPodcast()
     podcastsPanelsHTML += htmlbottomEachPodcasts
-    #podcastsPanelsHTML += "</div>"
 
     return podcastsPanelsHTML
 
@@ -329,11 +321,8 @@ def main():
     </html>
     """
 
-
     processSCMagazine()
-    processSecurityWeek()
-    processTheHackerNews()
-
+    processFeedburnerFeeds()
 
     securityNow = processSecurityNow()
     processStormDailyPodcast()
