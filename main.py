@@ -12,32 +12,6 @@ urlSecurityWeek = "https://feeds.feedburner.com/securityweek"
 url2 = "https://tools.cisco.com/security/center/psirtrss20/AlertRSS.xml"
 url3 = 'https://nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-modified.json.zip'
 
-# processSecurityWeek()
-
-"""
-zip_ref = zipfile.ZipFile("nvdcve-1.0-modified.json.zip", 'r')
-zip_ref.extractall(".")
-zip_ref.close()
-
-score = 0
-cve_id = ""
-cve_des = ""
-publishedDate = ""
-
-with open('nvdcve-1.0-modified.json') as f:
-  data = json.load(f)
-  for cve in data["CVE_Items"]:
-      cve_id = cve["cve"]["CVE_data_meta"]["ID"]
-      cve_publishedDate = cve["publishedDate"]
-      if "impact" in cve:
-          if "baseMetricV3" in cve["impact"]:
-              score = cve["impact"]["baseMetricV3"]["cvssV3"]["baseScore"]
-      else:
-          score = 0
-      cve_des = cve["cve"]["description"]["description_data"][0]["value"]
-      print("<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>".format(cve_id,score,cve_publishedDate))
-"""
-
 def processSCMagazine():
     url = "https://www.securitymagazine.com/rss/15"
     d = feedparser.parse(url)
@@ -157,15 +131,7 @@ def uploadIndex():
     s3_resource = boto3.resource('s3')
     s3_resource.meta.client.upload_file(
     Filename="index.html", Bucket="securityadvisor",
-    Key="index.html")
-    response = s3_resource.meta.client.put_object_acl(ACL='public-read',
-    Bucket="securityadvisor",
-    Key="index.html")
-    response = s3_resource.meta.client.put_public_access_block(Bucket='securityadvisor',
-    PublicAccessBlockConfiguration={
-        'RestrictPublicBuckets': False
-    })
-
+    Key="index.html",ExtraArgs={"ContentType":"text/html"})
 
 def generateNewsTable():
     newsHTML = """<div class="page-header">
@@ -320,10 +286,10 @@ def main():
       </body>
     </html>
     """
-
+    """
     processSCMagazine()
     processFeedburnerFeeds()
-
+    """
     securityNow = processSecurityNow()
     processStormDailyPodcast()
 
